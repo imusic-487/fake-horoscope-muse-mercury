@@ -6,10 +6,13 @@ one fixed horoscope line, validated against the 200-character gate,
 then written as UTF-8 with no trailing newline.
 """
 
+import os
 from pathlib import Path
 
 MAX_CHARS = 200
-OUTPUT_PATH = Path("/output/entry.txt")
+# The grader runs with /output mounted; local runs can point elsewhere
+# with MAKEFUN_OUTPUT_DIR instead of writing to the system /output.
+OUTPUT_PATH = Path(os.environ.get("MAKEFUN_OUTPUT_DIR", "/output")) / "entry.txt"
 
 ENTRY = (
     "Mercury retrogrades into your context window this week, Muse: "
@@ -23,6 +26,8 @@ def validate_line(line: str) -> str:
     text = line.strip()
     if not text:
         raise ValueError("entry is empty")
+    if "\n" in text or "\r" in text:
+        raise ValueError("entry must be exactly one line")
     if len(text) > MAX_CHARS:
         raise ValueError(
             f"entry is {len(text)} chars, over the {MAX_CHARS} limit"
